@@ -3,7 +3,7 @@ defmodule DimensionForgeWeb.ApiKeyController do
 
   alias DimensionForge.ApiKeys
 
-  action_fallback DimensionForgeWeb.FallbackController
+  action_fallback(DimensionForgeWeb.FallbackController)
 
   def validate(conn, %{"key" => key}) do
     case ApiKeys.validate_api_key(key) do

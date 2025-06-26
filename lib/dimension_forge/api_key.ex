@@ -3,9 +3,9 @@ defmodule DimensionForge.ApiKey do
   import Ecto.Changeset
 
   schema "api_keys" do
-    field :active, :boolean, default: false
-    field :name, :string
-    field :key, :string
+    field(:active, :boolean, default: false)
+    field(:name, :string)
+    field(:key, :string)
 
     timestamps(type: :utc_datetime)
   end

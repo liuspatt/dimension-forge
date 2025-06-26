@@ -42,9 +42,10 @@ defmodule DimensionForge.CloudStorage do
 
   defp upload_file(file_path, bucket, object_name) do
     IO.inspect({file_path, bucket, object_name}, label: "5. Upload file params")
-    with {:ok, conn} <- (get_connection() |> IO.inspect(label: "5. GCP connection")) do
+
+    with {:ok, conn} <- get_connection() |> IO.inspect(label: "5. GCP connection") do
       IO.inspect("Starting GCS upload...", label: "5. Upload start")
-      
+
       case Objects.storage_objects_insert_simple(
              conn,
              bucket,
@@ -57,13 +58,13 @@ defmodule DimensionForge.CloudStorage do
           public_url = build_public_url(bucket, object_name)
           IO.inspect(public_url, label: "5. Generated public URL")
           {:ok, public_url}
-          
+
         {:error, error} ->
           IO.inspect(error, label: "5. GCS upload error")
           {:error, "Upload failed: #{inspect(error)}"}
       end
     else
-      {:error, error} -> 
+      {:error, error} ->
         IO.inspect(error, label: "5. Connection error")
         {:error, "Connection failed: #{inspect(error)}"}
     end
@@ -75,21 +76,23 @@ defmodule DimensionForge.CloudStorage do
     temp_path = Path.join(temp_dir, temp_filename)
 
     with {:ok, conn} <- get_connection(),
-         {:ok, %Tesla.Env{body: content}} <- Objects.storage_objects_get(
-           conn,
-           bucket,
-           object_name,
-           alt: "media"
-         ),
+         {:ok, %Tesla.Env{body: content}} <-
+           Objects.storage_objects_get(
+             conn,
+             bucket,
+             object_name,
+             alt: "media"
+           ),
          :ok <- File.write(temp_path, content) do
-
       {:ok, temp_path}
     else
       error -> {:error, "Download failed: #{inspect(error)}"}
     end
   end
+
   defp get_connection do
     IO.inspect("Getting GCP connection...", label: "5. Auth step")
+
     case Goth.fetch(DimensionForge.Goth) |> IO.inspect(label: "5. Goth token fetch") do
       {:ok, token} ->
         IO.inspect(token, label: "5. Retrieved token")
@@ -103,8 +106,10 @@ defmodule DimensionForge.CloudStorage do
   end
 
   defp get_bucket_name do
-    bucket = System.get_env("GCP_BUCKET_NAME") ||
-      raise "GCP_BUCKET_NAME environment variable is required"
+    bucket =
+      System.get_env("GCP_BUCKET_NAME") ||
+        raise "GCP_BUCKET_NAME environment variable is required"
+
     IO.inspect(bucket, label: "5. Using bucket")
     bucket
   end

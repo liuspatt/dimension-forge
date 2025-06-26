@@ -11,6 +11,7 @@ defmodule DimensionForge.Application do
       Dotenv.load()
       Mix.Task.run("loadconfig")
     end
+
     children = [
       DimensionForgeWeb.Telemetry,
       DimensionForge.Repo,
@@ -44,10 +45,11 @@ defmodule DimensionForge.Application do
     case System.get_env("GOOGLE_APPLICATION_CREDENTIALS") do
       nil ->
         # Fallback to project credentials file
-        credentials_path = case System.get_env("GCP_CREDENTIALS_JSON") do
-          nil -> Path.join([File.cwd!(), "credentials.json"])
-          path -> Path.join([File.cwd!(), path])
-        end
+        credentials_path =
+          case System.get_env("GCP_CREDENTIALS_JSON") do
+            nil -> Path.join([File.cwd!(), "credentials.json"])
+            path -> Path.join([File.cwd!(), path])
+          end
 
         case File.read(credentials_path) do
           {:ok, json} ->

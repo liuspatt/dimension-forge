@@ -3,7 +3,6 @@ defmodule DimensionForge.ImageProcessor do
   Image processing utilities using Mogrify (ImageMagick)
   """
 
-
   @doc """
   Get image dimensions
   """
@@ -58,7 +57,14 @@ defmodule DimensionForge.ImageProcessor do
       # Generate JPG variant (always)
       case create_single_variant(input_path, width, height, "jpg") do
         {:ok, jpg_path} ->
-          case DimensionForge.CloudStorage.upload_variant(jpg_path, project_name, image_id, width, height, "jpg") do
+          case DimensionForge.CloudStorage.upload_variant(
+                 jpg_path,
+                 project_name,
+                 image_id,
+                 width,
+                 height,
+                 "jpg"
+               ) do
             {:ok, jpg_url} ->
               File.rm(jpg_path)
               updated_acc = Map.put(acc, "#{width}x#{height}_jpg", jpg_url)
@@ -67,7 +73,14 @@ defmodule DimensionForge.ImageProcessor do
               if webp_enabled do
                 case create_single_variant(input_path, width, height, "webp") do
                   {:ok, webp_path} ->
-                    case DimensionForge.CloudStorage.upload_variant(webp_path, project_name, image_id, width, height, "webp") do
+                    case DimensionForge.CloudStorage.upload_variant(
+                           webp_path,
+                           project_name,
+                           image_id,
+                           width,
+                           height,
+                           "webp"
+                         ) do
                       {:ok, webp_url} ->
                         File.rm(webp_path)
                         final_acc = Map.put(updated_acc, "#{width}x#{height}_webp", webp_url)
@@ -164,7 +177,8 @@ defmodule DimensionForge.ImageProcessor do
     # WebP-specific optimizations
     image
     |> Mogrify.custom("define", "webp:lossless=false")
-    |> Mogrify.custom("define", "webp:method=6") # Best compression
+    # Best compression
+    |> Mogrify.custom("define", "webp:method=6")
   end
 
   defp optimize_image(image, "jpg") do
