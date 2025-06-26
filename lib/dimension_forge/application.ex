@@ -18,6 +18,8 @@ defmodule DimensionForge.Application do
       {Phoenix.PubSub, name: DimensionForge.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: DimensionForge.Finch},
+      # Start Goth for Google Cloud authentication
+      {Goth, name: DimensionForge.Goth, source: {:service_account, gcp_credentials(), []}},
       # Start a worker by calling: DimensionForge.Worker.start_link(arg)
       # {DimensionForge.Worker, arg},
       # Start to serve requests, typically the last entry
@@ -36,5 +38,30 @@ defmodule DimensionForge.Application do
   def config_change(changed, _new, removed) do
     DimensionForgeWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp gcp_credentials do
+    case System.get_env("GOOGLE_APPLICATION_CREDENTIALS") do
+      nil ->
+        # Fallback to project credentials file
+        credentials_path = case System.get_env("GCP_CREDENTIALS_JSON") do
+          nil -> Path.join([File.cwd!(), "credentials.json"])
+          path -> Path.join([File.cwd!(), path])
+        end
+
+        case File.read(credentials_path) do
+          {:ok, json} ->
+            Jason.decode!(json)
+
+          {:error, _} ->
+            raise "GCP credentials not found. Set GOOGLE_APPLICATION_CREDENTIALS or provide #{credentials_path}"
+        end
+
+      path ->
+        case File.read(path) do
+          {:ok, json} -> Jason.decode!(json)
+          {:error, _} -> raise "Could not read GCP credentials from #{path}"
+        end
+    end
   end
 end

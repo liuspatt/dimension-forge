@@ -56,3 +56,7 @@ Thumbs.db
 
 # Elixir Language Server
 .elixir_ls/
+
+# GCP Credentials
+credentials.json
+*.json

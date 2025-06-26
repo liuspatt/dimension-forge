@@ -45,7 +45,12 @@ defmodule DimensionForge.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:dotenv, "~> 3.0.0"}
+      {:dotenv, "~> 3.0.0"},
+      # Image proxy dependencies
+      {:google_api_storage, "~> 0.36"},
+      {:goth, "~> 1.3"},
+      {:mogrify, "~> 0.9"},
+      {:uuid, "~> 1.1"}
     ]
   end
 
