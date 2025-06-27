@@ -20,24 +20,15 @@ defmodule DimensionForge.ImageProcessor do
   end
 
   @doc """
-  Resize image and convert to specified format using ImageMagick
+  Resize image and convert to specified format using ImageMagick + cwebp
   """
-  def resize_and_convert(input_path, width, height, format) do
-    temp_dir = System.tmp_dir!()
-    output_filename = "processed_#{UUID.uuid4()}_#{width}x#{height}.#{format}"
-    output_path = Path.join(temp_dir, output_filename)
-
-    try do
-      input_path
-      |> Mogrify.open()
-      |> resize_image(width, height)
-      |> convert_format(format)
-      |> optimize_image(format)
-      |> Mogrify.save(path: output_path)
-
-      {:ok, output_path}
-    rescue
-      error -> {:error, "Failed to process image: #{inspect(error)}"}
+  def resize_and_convert(input_path, width, height, format, resize_mode \\ nil) do
+    case format do
+      "webp" ->
+        resize_and_convert_to_webp(input_path, width, height, resize_mode)
+      
+      _ ->
+        resize_and_convert_standard(input_path, width, height, format, resize_mode)
     end
   end
 
@@ -110,32 +101,142 @@ defmodule DimensionForge.ImageProcessor do
   end
 
   defp create_single_variant(input_path, width, height, format) do
+    case format do
+      "webp" ->
+        resize_and_convert_to_webp(input_path, width, height, nil)
+      
+      _ ->
+        temp_dir = System.tmp_dir!()
+        output_filename = "variant_#{UUID.uuid4()}_#{width}x#{height}.#{format}"
+        output_path = Path.join(temp_dir, output_filename)
+
+        try do
+          input_path
+          |> Mogrify.open()
+          |> preserve_color_profile()
+          |> resize_image(width, height, nil)
+          |> convert_format(format)
+          |> optimize_image(format)
+          |> Mogrify.save(path: output_path)
+
+          {:ok, output_path}
+        rescue
+          error -> {:error, "Failed to create variant: #{inspect(error)}"}
+        end
+    end
+  end
+
+  # Private functions
+
+  defp resize_and_convert_to_webp(input_path, width, height, resize_mode) do
     temp_dir = System.tmp_dir!()
-    output_filename = "variant_#{UUID.uuid4()}_#{width}x#{height}.#{format}"
+    
+    # First resize with ImageMagick to PNG (lossless intermediate)
+    intermediate_filename = "resized_#{UUID.uuid4()}_#{width}x#{height}.png"
+    intermediate_path = Path.join(temp_dir, intermediate_filename)
+    
+    # Final WebP output
+    output_filename = "processed_#{UUID.uuid4()}_#{width}x#{height}.webp"
+    output_path = Path.join(temp_dir, output_filename)
+
+    try do
+      # Step 1: Resize with ImageMagick
+      input_path
+      |> Mogrify.open()
+      |> preserve_color_profile()
+      |> resize_image(width, height, resize_mode)
+      |> Mogrify.format("png")
+      |> Mogrify.save(path: intermediate_path)
+
+      # Step 2: Convert to WebP with cwebp
+      case convert_to_webp_with_cwebp(intermediate_path, output_path) do
+        :ok ->
+          File.rm(intermediate_path)
+          {:ok, output_path}
+        
+        {:error, reason} ->
+          File.rm(intermediate_path)
+          {:error, reason}
+      end
+    rescue
+      error -> 
+        # Clean up intermediate file if it exists
+        if File.exists?(intermediate_path), do: File.rm(intermediate_path)
+        {:error, "Failed to process WebP image: #{inspect(error)}"}
+    end
+  end
+
+  defp resize_and_convert_standard(input_path, width, height, format, resize_mode) do
+    temp_dir = System.tmp_dir!()
+    output_filename = "processed_#{UUID.uuid4()}_#{width}x#{height}.#{format}"
     output_path = Path.join(temp_dir, output_filename)
 
     try do
       input_path
       |> Mogrify.open()
-      |> resize_image(width, height)
+      |> preserve_color_profile()
+      |> resize_image(width, height, resize_mode)
       |> convert_format(format)
       |> optimize_image(format)
       |> Mogrify.save(path: output_path)
 
       {:ok, output_path}
     rescue
-      error -> {:error, "Failed to create variant: #{inspect(error)}"}
+      error -> {:error, "Failed to process image: #{inspect(error)}"}
     end
   end
 
-  # Private functions
+  defp convert_to_webp_with_cwebp(input_path, output_path) do
+    quality = get_webp_quality()
+    
+    # Build cwebp command
+    cmd_args = [
+      "-q", "#{quality}",
+      "-m", "6",  # Best compression method
+      "-pass", "10",  # Number of analysis passes
+      input_path,
+      "-o", output_path
+    ]
 
-  defp resize_image(image, width, height) do
-    # Resize maintaining aspect ratio, fitting within bounds
-    image
-    |> Mogrify.resize("#{width}x#{height}>")
-    |> Mogrify.extent("#{width}x#{height}")
-    |> Mogrify.gravity("center")
+    case System.cmd("cwebp", cmd_args, stderr_to_stdout: true) do
+      {_output, 0} -> :ok
+      {error_output, _exit_code} -> {:error, "cwebp failed: #{error_output}"}
+    end
+  rescue
+    error -> {:error, "Failed to execute cwebp: #{inspect(error)}"}
+  end
+
+  defp resize_image(image, width, height, mode \\ nil) do
+    # Use provided mode or get from environment variable
+    resize_mode = mode || System.get_env("RESIZE_MODE", "crop")
+    
+    case resize_mode do
+      "crop" ->
+        # Crop to fill exact dimensions (no white space)
+        image
+        |> Mogrify.resize("#{width}x#{height}^")
+        |> Mogrify.gravity("center")
+        |> Mogrify.custom("crop", "#{width}x#{height}+0+0")
+      
+      "fit" ->
+        # Fit within dimensions maintaining aspect ratio (may add white space)
+        image
+        |> Mogrify.resize("#{width}x#{height}>")
+        |> Mogrify.extent("#{width}x#{height}")
+        |> Mogrify.gravity("center")
+      
+      "stretch" ->
+        # Stretch to exact dimensions (may distort image)
+        image
+        |> Mogrify.resize("#{width}x#{height}!")
+      
+      _ ->
+        # Default to crop mode
+        image
+        |> Mogrify.resize_to_fill("#{width}x#{height}")
+        |> Mogrify.gravity("center")
+        |> Mogrify.extent("#{width}x#{height}")
+    end
   end
 
   defp convert_format(image, "webp") do
@@ -174,19 +275,13 @@ defmodule DimensionForge.ImageProcessor do
   end
 
   defp optimize_image(image, "webp") do
-    # WebP-specific optimizations
+    # Minimal WebP optimizations
     image
-    |> Mogrify.custom("define", "webp:lossless=false")
-    # Best compression
-    |> Mogrify.custom("define", "webp:method=6")
   end
 
   defp optimize_image(image, "jpg") do
-    # JPEG optimizations
+    # Minimal JPEG optimizations
     image
-    |> Mogrify.custom("sampling-factor", "4:2:0")
-    |> Mogrify.custom("colorspace", "RGB")
-    |> Mogrify.custom("interlace", "Plane")
   end
 
   defp optimize_image(image, "jpeg") do
@@ -246,5 +341,13 @@ defmodule DimensionForge.ImageProcessor do
     System.get_env("SUPPORTED_FORMATS", "webp,jpg,jpeg,png,gif")
     |> String.split(",")
     |> Enum.map(&String.trim/1)
+  end
+
+  # Private helper for color profile preservation
+  defp preserve_color_profile(image) do
+    image
+    |> Mogrify.custom("auto-orient")
+    |> Mogrify.custom("strip")
+    |> Mogrify.custom("colorspace", "sRGB")
   end
 end

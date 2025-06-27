@@ -57,16 +57,81 @@ defmodule DimensionForgeWeb.ImageController do
         width_int = String.to_integer(width)
         height_int = String.to_integer(height)
 
-        case get_or_create_variant(image, width_int, height_int, format) do
+        resize_mode = conn.params["mode"] || conn.query_params["mode"] || "crop"
+
+        case get_or_create_variant(image, width_int, height_int, format, resize_mode) do
           {:ok, url} ->
-            conn
-            |> redirect(external: url)
+            serve_image_from_storage(conn, url, format)
 
           {:error, reason} ->
             conn
             |> put_status(:internal_server_error)
             |> json(%{error: reason})
         end
+    end
+  end
+
+  # Reset all variants for an image
+  def reset_variants(conn, %{"id" => image_id}) do
+    project_name = conn.params["project_name"] || get_req_header(conn, "x-project-name") |> List.first() || "default"
+
+    case Images.get_image(project_name, image_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Image not found"})
+
+      image ->
+        case delete_all_variants(image) do
+          :ok ->
+            case Images.clear_variants(image) do
+              {:ok, updated_image} ->
+                conn
+                |> json(%{
+                  success: true,
+                  message: "All variants reset successfully",
+                  data: %{
+                    image_id: updated_image.image_id,
+                    variants_cleared: map_size(image.variants)
+                  }
+                })
+
+              {:error, reason} ->
+                conn
+                |> put_status(:internal_server_error)
+                |> json(%{error: "Failed to update database: #{reason}"})
+            end
+
+          {:error, reason} ->
+            conn
+            |> put_status(:internal_server_error)
+            |> json(%{error: "Failed to delete variants from storage: #{reason}"})
+        end
+    end
+  end
+
+  # Reset all variants for all images in a project
+  def reset_all_variants(conn, _params) do
+    project_name = conn.params["project_name"] || get_req_header(conn, "x-project-name") |> List.first() || "default"
+
+    case reset_all_images_variants(project_name) do
+      {:ok, results} ->
+        conn
+        |> json(%{
+          success: true,
+          message: "All image variants reset successfully",
+          data: %{
+            project_name: project_name,
+            images_processed: results.images_processed,
+            total_variants_cleared: results.total_variants_cleared,
+            errors: results.errors
+          }
+        })
+
+      {:error, reason} ->
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{error: "Failed to reset all variants: #{reason}"})
     end
   end
 
@@ -109,10 +174,11 @@ defmodule DimensionForgeWeb.ImageController do
               width_int = String.to_integer(width)
               height_int = String.to_integer(height)
 
-              case get_or_create_variant(image, width_int, height_int, format) do
+              resize_mode = conn.params["mode"] || conn.query_params["mode"] || "crop"
+
+              case get_or_create_variant(image, width_int, height_int, format, resize_mode) do
                 {:ok, url} ->
-                  conn
-                  |> redirect(external: url)
+                  serve_image_from_storage(conn, url, format)
 
                 {:error, reason} ->
                   conn
@@ -234,24 +300,24 @@ defmodule DimensionForgeWeb.ImageController do
     ImageProcessor.generate_default_variants(temp_path, project_name, image_id, original_filename)
   end
 
-  defp get_or_create_variant(image, width, height, format) do
+  defp get_or_create_variant(image, width, height, format, resize_mode \\ nil) do
     variant_key = "#{width}x#{height}_#{format}"
 
     case Map.get(image.variants, variant_key) do
       nil ->
         # Variant doesn't exist, create it on demand
-        create_on_demand_variant(image, width, height, format)
+        create_on_demand_variant(image, width, height, format, resize_mode)
 
       url ->
         {:ok, url}
     end
   end
 
-  defp create_on_demand_variant(image, width, height, format) do
+  defp create_on_demand_variant(image, width, height, format, resize_mode \\ nil) do
     # Download original, process, upload variant, update database
     with {:ok, temp_path} <- CloudStorage.download_original(image.original_url),
          {:ok, processed_path} <-
-           ImageProcessor.resize_and_convert(temp_path, width, height, format),
+           ImageProcessor.resize_and_convert(temp_path, width, height, format, resize_mode),
          {:ok, url} <-
            CloudStorage.upload_variant(
              processed_path,
@@ -267,6 +333,90 @@ defmodule DimensionForgeWeb.ImageController do
       {:ok, url}
     else
       error -> error
+    end
+  end
+
+  defp serve_image_from_storage(conn, storage_url, _format) do
+    case CloudStorage.serve_image_from_storage(storage_url) do
+      {:ok, signed_url} ->
+        conn
+        |> redirect(external: signed_url)
+
+      {:error, _reason} ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Image not found"})
+    end
+  end
+
+  defp get_content_type_for_format(format) do
+    case String.downcase(format) do
+      "jpg" -> "image/jpeg"
+      "jpeg" -> "image/jpeg"
+      "png" -> "image/png"
+      "gif" -> "image/gif"
+      "webp" -> "image/webp"
+      "bmp" -> "image/bmp"
+      "tiff" -> "image/tiff"
+      "svg" -> "image/svg+xml"
+      _ -> "application/octet-stream"
+    end
+  end
+
+  defp delete_all_variants(image) do
+    # Delete all variants from cloud storage
+    Enum.reduce_while(image.variants, :ok, fn {variant_key, _url}, _acc ->
+      object_name = build_variant_object_name(image.project_name, image.image_id, variant_key)
+
+      case CloudStorage.delete_variant(object_name) do
+        :ok -> {:cont, :ok}
+        error -> {:halt, error}
+      end
+    end)
+  end
+
+  defp reset_all_images_variants(project_name) do
+    # Get all images in the project
+    images = Images.list_images(project_name, limit: 1000)
+
+    # Process each image
+    results = Enum.reduce(images, %{images_processed: 0, total_variants_cleared: 0, errors: []}, fn image, acc ->
+      case delete_all_variants(image) do
+        :ok ->
+          case Images.clear_variants(image) do
+            {:ok, _updated_image} ->
+              %{
+                images_processed: acc.images_processed + 1,
+                total_variants_cleared: acc.total_variants_cleared + map_size(image.variants),
+                errors: acc.errors
+              }
+
+            {:error, reason} ->
+              error_msg = "Failed to clear variants in database for image #{image.image_id}: #{reason}"
+              %{acc | errors: [error_msg | acc.errors]}
+          end
+
+        {:error, reason} ->
+          error_msg = "Failed to delete variants from storage for image #{image.image_id}: #{reason}"
+          %{acc | errors: [error_msg | acc.errors]}
+      end
+    end)
+
+    if length(results.errors) == 0 do
+      {:ok, results}
+    else
+      {:ok, results}  # Return partial success with errors listed
+    end
+  end
+
+  defp build_variant_object_name(project_name, image_id, variant_key) do
+    # Parse variant key like "300x200_webp" to extract dimensions and format
+    case String.split(variant_key, "_") do
+      [dimensions, format] ->
+        "variants/#{project_name}/#{image_id}/#{dimensions}.#{format}"
+      _ ->
+        # Fallback if key format is unexpected
+        "variants/#{project_name}/#{image_id}/#{variant_key}"
     end
   end
 

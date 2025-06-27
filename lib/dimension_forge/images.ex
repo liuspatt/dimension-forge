@@ -72,4 +72,13 @@ defmodule DimensionForge.Images do
     |> Image.changeset(attrs)
     |> Repo.update()
   end
+
+  @doc """
+  Clears all variants from an image
+  """
+  def clear_variants(%Image{} = image) do
+    image
+    |> Image.changeset(%{variants: %{}})
+    |> Repo.update()
+  end
 end

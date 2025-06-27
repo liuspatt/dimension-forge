@@ -30,12 +30,84 @@ defmodule DimensionForge.CloudStorage do
   Download original image for on-demand processing
   """
   def download_original(original_url) do
-    # Extract object name from URL
-    uri = URI.parse(original_url)
-    object_name = String.trim_leading(uri.path, "/")
     bucket = get_bucket_name()
+    
+    object_name = case original_url do
+      # Handle URLs that start with "https://storage.googleapis.com/"
+      "https://storage.googleapis.com/" <> rest ->
+        case String.split(rest, "/", parts: 2) do
+          [_bucket, path] -> path
+          [path] -> path
+        end
+      
+      # Handle bucket/object format
+      _ ->
+        case String.split(original_url, "/", parts: 2) do
+          [_bucket, path] -> path
+          [path] -> path
+        end
+    end
 
     download_file(bucket, object_name)
+  end
+
+  @doc """
+  Generate a signed URL for direct access to an image
+  """
+  def generate_signed_url(filename, expiry_minutes \\ 60) do
+    {:ok, token} = Goth.fetch(DimensionForge.Goth)
+    bucket = get_bucket_name()
+
+    # Calculate expiry time as Unix timestamp
+    expiry_timestamp =
+      DateTime.utc_now()
+      |> DateTime.add(expiry_minutes * 60, :second)
+      |> DateTime.to_unix()
+
+    # Create the signed URL using query parameters for temporary access
+    base_url = "https://storage.googleapis.com/#{bucket}/#{filename}"
+    signed_url = "#{base_url}?access_token=#{token.token}&expires=#{expiry_timestamp}"
+
+    {:ok, signed_url}
+  end
+
+  @doc """
+  Serve image from storage using signed URL redirect
+  """
+  def serve_image_from_storage(storage_url) do
+    object_name = case storage_url do
+      # Handle URLs that start with "https://storage.googleapis.com/"
+      "https://storage.googleapis.com/" <> rest ->
+        case String.split(rest, "/", parts: 2) do
+          [_bucket, path] -> path
+          [path] -> path
+        end
+      
+      # Handle bucket/object format
+      _ ->
+        case String.split(storage_url, "/", parts: 2) do
+          [_bucket, path] -> path
+          [path] -> path
+        end
+    end
+    
+    generate_signed_url(object_name)
+  end
+
+  @doc """
+  Delete a variant from cloud storage
+  """
+  def delete_variant(object_name) do
+    bucket = get_bucket_name()
+    
+    with {:ok, conn} <- get_connection() do
+      case Objects.storage_objects_delete(conn, bucket, object_name) do
+        {:ok, _} -> :ok
+        {:error, error} -> {:error, "Failed to delete variant: #{inspect(error)}"}
+      end
+    else
+      {:error, error} -> {:error, error}
+    end
   end
 
   # Private functions

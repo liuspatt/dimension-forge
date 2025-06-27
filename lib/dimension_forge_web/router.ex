@@ -12,6 +12,11 @@ defmodule DimensionForgeWeb.Router do
 
     # Image upload API (requires authentication)
     post("/upload", ImageController, :upload)
+
+    # Image metadata and management endpoints
+    get("/image/:id", ImageController, :get_image_metadata)
+    delete("/image/:id/variants", ImageController, :reset_variants)
+    delete("/images/variants", ImageController, :reset_all_variants)
   end
 
   # Public image delivery endpoints (no authentication required)
