@@ -3,8 +3,8 @@
 # Site settings
 title: "DimensionForge"
 description: "High-performance image processing and optimization API for cloud applications"
-baseurl: "" # Leave empty if repository name is not part of URL
-url: "https://liuspatt.github.io" # Updated GitHub Pages URL
+baseurl: "/dimension-forge" # Repository name for GitHub Pages
+url: "https://liuspatt.github.io" # GitHub Pages URL
 
 # Repository information
 repository: "liuspatt/dimension-forge"
@@ -12,7 +12,7 @@ repository: "liuspatt/dimension-forge"
 # Build settings
 markdown: kramdown
 highlighter: rouge
-theme: minima
+remote_theme: pages-themes/minimal@v0.2.0
 
 # Plugins
 plugins:

@@ -6,14 +6,14 @@ DimensionForge is a powerful, scalable image processing service built with Phoen
 
 ## ✨ Features
 
-- **🚀 On-demand Image Processing**: Resize, crop, and convert images in real-time
-- **☁️ Multi-Cloud Support**: Google Cloud Storage, AWS S3, Azure Blob Storage
-- **🔐 API Key Authentication**: Secure project-based access control
-- **🎯 Smart Caching**: Intelligent variant caching to minimize processing overhead
-- **⚡ High Performance**: Built with Elixir/Phoenix for maximum concurrency
-- **📊 Multiple Formats**: Support for JPEG, PNG, WebP, GIF, BMP, TIFF, SVG
-- **🔧 Flexible Resizing**: Crop, fit, fill, and stretch modes
-- **📈 Production Ready**: Docker support, health checks, metrics
+- **<iconify-icon icon="material-symbols:rocket-launch"></iconify-icon> On-demand Image Processing**: Resize, crop, and convert images in real-time
+- **<iconify-icon icon="material-symbols:cloud"></iconify-icon> Multi-Cloud Support**: Google Cloud Storage, AWS S3, Azure Blob Storage
+- **<iconify-icon icon="material-symbols:security"></iconify-icon> API Key Authentication**: Secure project-based access control
+- **<iconify-icon icon="material-symbols:cached"></iconify-icon> Smart Caching**: Intelligent variant caching to minimize processing overhead
+- **<iconify-icon icon="material-symbols:bolt"></iconify-icon> High Performance**: Built with Elixir/Phoenix for maximum concurrency
+- **<iconify-icon icon="material-symbols:image"></iconify-icon> Multiple Formats**: Support for JPEG, PNG, WebP, GIF, BMP, TIFF, SVG
+- **<iconify-icon icon="material-symbols:tune"></iconify-icon> Flexible Resizing**: Crop, fit, fill, and stretch modes
+- **<iconify-icon icon="material-symbols:verified"></iconify-icon> Production Ready**: Docker support, health checks, metrics
 
 ## 🚀 Quick Start
 
@@ -41,24 +41,19 @@ curl -X POST "https://your-domain.com/api/upload" \
 ## 📚 Documentation
 
 ### Installation & Deployment
-- [🏗️ Installation Guide](installation.md) - Complete setup instructions
-- [☁️ Google Cloud Platform](gcp-deployment.md) - Deploy on GCP Cloud Run & GKE
-- [🟠 AWS Deployment](aws-deployment.md) - Deploy on ECS, Fargate & Elastic Beanstalk  
-- [🔵 Azure Deployment](azure-deployment.md) - Deploy on Container Instances & Container Apps
-- [🟣 Heroku Deployment](heroku-deployment.md) - One-click Heroku deployment
-- [🐳 Docker Deployment](docker-deployment.md) - Self-hosted Docker setup
+- [<iconify-icon icon="material-symbols:construction"></iconify-icon> Installation Guide]({{ "/installation" | relative_url }}) - Complete setup instructions
+- [<iconify-icon icon="logos:google-cloud"></iconify-icon> Google Cloud Platform]({{ "/gcp-deployment" | relative_url }}) - Deploy on GCP Cloud Run & GKE
+- [<iconify-icon icon="logos:aws"></iconify-icon> AWS Deployment]({{ "/aws-deployment" | relative_url }}) - Deploy on ECS, Fargate & Elastic Beanstalk  
+- [<iconify-icon icon="logos:microsoft-azure"></iconify-icon> Azure Deployment]({{ "/azure-deployment" | relative_url }}) - Deploy on Container Instances & Container Apps
+- [<iconify-icon icon="logos:docker-icon"></iconify-icon> Docker Deployment]({{ "/docker-deployment" | relative_url }}) - Self-hosted Docker setup
 
 ### API Reference
-- [📋 API Documentation](api-reference.md) - Complete API reference
-- [🔑 Authentication](authentication.md) - API key management
-- [🖼️ Image Processing](image-processing.md) - Resize modes and formats
-- [📁 Project Management](project-management.md) - Organize images by project
+- [<iconify-icon icon="material-symbols:api"></iconify-icon> API Documentation]({{ "/api-reference" | relative_url }}) - Complete API reference
 
 ### Advanced Topics
-- [⚙️ Configuration](configuration.md) - Environment variables and settings
-- [📊 Monitoring](monitoring.md) - Health checks and metrics
-- [🛡️ Security](security.md) - Security best practices
-- [🔧 Troubleshooting](troubleshooting.md) - Common issues and solutions
+- [<iconify-icon icon="material-symbols:settings"></iconify-icon> Configuration]({{ "/installation#environment-variables" | relative_url }}) - Environment variables and settings
+- [<iconify-icon icon="material-symbols:shield"></iconify-icon> Security]({{ "/installation#security-configuration" | relative_url }}) - Security best practices
+- [<iconify-icon icon="material-symbols:build"></iconify-icon> Troubleshooting]({{ "/installation#troubleshooting" | relative_url }}) - Common issues and solutions
 
 ## 🌐 Live Demo
 
@@ -120,23 +115,23 @@ const imageUrl = `https://your-domain.com/image/my-app/${imageId}/800/600/photo.
 Choose your deployment method:
 
 <div class="installation-grid">
-  <a href="gcp-deployment.html" class="install-card">
-    <h3>🌐 Google Cloud</h3>
+  <a href="{{ "/gcp-deployment" | relative_url }}" class="install-card">
+    <h3><iconify-icon icon="logos:google-cloud"></iconify-icon> Google Cloud</h3>
     <p>Deploy on Cloud Run or GKE with one command</p>
   </a>
   
-  <a href="aws-deployment.html" class="install-card">
-    <h3>🟠 AWS</h3>
+  <a href="{{ "/aws-deployment" | relative_url }}" class="install-card">
+    <h3><iconify-icon icon="logos:aws"></iconify-icon> AWS</h3>
     <p>ECS Fargate and Elastic Beanstalk ready</p>
   </a>
   
-  <a href="azure-deployment.html" class="install-card">
-    <h3>🔵 Azure</h3>
+  <a href="{{ "/azure-deployment" | relative_url }}" class="install-card">
+    <h3><iconify-icon icon="logos:microsoft-azure"></iconify-icon> Azure</h3>
     <p>Container Instances and Container Apps</p>
   </a>
   
-  <a href="docker-deployment.html" class="install-card">
-    <h3>🐳 Docker</h3>
+  <a href="{{ "/docker-deployment" | relative_url }}" class="install-card">
+    <h3><iconify-icon icon="logos:docker-icon"></iconify-icon> Docker</h3>
     <p>Self-hosted with Docker Compose</p>
   </a>
 </div>
@@ -147,21 +142,21 @@ We welcome contributions! Please see our [Contributing Guide](contributing.md) f
 
 ## 📄 License
 
-DimensionForge is released under the MIT License. See [LICENSE](https://github.com/your-username/dimension-forge/blob/main/LICENSE) for details.
+DimensionForge is released under the MIT License. See [LICENSE](https://github.com/liuspatt/dimension-forge/blob/main/LICENSE) for details.
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/your-username/dimension-forge)
-- [Issues](https://github.com/your-username/dimension-forge/issues)
-- [Discussions](https://github.com/your-username/dimension-forge/discussions)
+- [GitHub Repository](https://github.com/liuspatt/dimension-forge)
+- [Issues](https://github.com/liuspatt/dimension-forge/issues)
+- [Discussions](https://github.com/liuspatt/dimension-forge/discussions)
 
 ---
 
 <div align="center">
   <p>Built with ❤️ using Elixir and Phoenix</p>
   <p>
-    <a href="https://github.com/your-username/dimension-forge">⭐ Star on GitHub</a> |
-    <a href="https://github.com/your-username/dimension-forge/issues">🐛 Report Bug</a> |
-    <a href="https://github.com/your-username/dimension-forge/discussions">💬 Discussions</a>
+    <a href="https://github.com/liuspatt/dimension-forge">⭐ Star on GitHub</a> |
+    <a href="https://github.com/liuspatt/dimension-forge/issues">🐛 Report Bug</a> |
+    <a href="https://github.com/liuspatt/dimension-forge/discussions">💬 Discussions</a>
   </p>
 </div>
