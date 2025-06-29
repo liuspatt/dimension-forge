@@ -1,0 +1,54 @@
+# GitHub Pages Configuration for DimensionForge Documentation
+
+# Site settings
+title: "DimensionForge"
+description: "High-performance image processing and optimization API for cloud applications"
+baseurl: "" # Leave empty if repository name is not part of URL
+url: "https://liuspatt.github.io" # Updated GitHub Pages URL
+
+# Repository information
+repository: "liuspatt/dimension-forge"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+navigation:
+  - title: "Home"
+    url: "/"
+  - title: "Installation"
+    url: "/installation"
+  - title: "API Reference"
+    url: "/api-reference"
+  - title: "Deployment"
+    subpages:
+      - title: "Google Cloud"
+        url: "/gcp-deployment"
+      - title: "AWS"
+        url: "/aws-deployment"
+      - title: "Azure"
+        url: "/azure-deployment"
+      - title: "Docker"
+        url: "/docker-deployment"
+  - title: "GitHub"
+    url: "https://github.com/liuspatt/dimension-forge"
+
+# SEO settings
+author: "Luis Patt"
+social:
+  name: "DimensionForge"
+  links:
+    - "https://github.com/liuspatt/dimension-forge"
+
+# Google Analytics (optional)
+google_analytics: "G-XXXXXXXXXX"
+
+# Remaining configuration unchanged
