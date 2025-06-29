@@ -6,7 +6,7 @@ defmodule DimensionForge.ApiKeysTest do
 
   describe "create_api_key/1" do
     test "creates an API key with valid attributes" do
-      attrs = %{"name" => "Test API Key"}
+      attrs = %{"name" => "Test API Key", "project_name" => "test-project"}
 
       assert {:ok, %ApiKey{} = api_key} = ApiKeys.create_api_key(attrs)
       assert api_key.name == "Test API Key"
@@ -16,14 +16,14 @@ defmodule DimensionForge.ApiKeysTest do
     end
 
     test "returns error changeset with invalid attributes" do
-      attrs = %{"name" => ""}
+      attrs = %{"name" => "", "project_name" => "test-project"}
 
       assert {:error, %Ecto.Changeset{}} = ApiKeys.create_api_key(attrs)
     end
 
     test "generates unique keys for multiple API keys" do
-      attrs1 = %{"name" => "Test API Key 1"}
-      attrs2 = %{"name" => "Test API Key 2"}
+      attrs1 = %{"name" => "Test API Key 1", "project_name" => "test-project-1"}
+      attrs2 = %{"name" => "Test API Key 2", "project_name" => "test-project-2"}
 
       {:ok, api_key1} = ApiKeys.create_api_key(attrs1)
       {:ok, api_key2} = ApiKeys.create_api_key(attrs2)
@@ -34,7 +34,7 @@ defmodule DimensionForge.ApiKeysTest do
 
   describe "validate_api_key/1" do
     test "returns {:ok, api_key} for valid active key" do
-      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API"})
+      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API", "project_name" => "test-project"})
 
       assert {:ok, returned_api_key} = ApiKeys.validate_api_key(api_key.key)
       assert returned_api_key.id == api_key.id
@@ -45,7 +45,7 @@ defmodule DimensionForge.ApiKeysTest do
     end
 
     test "returns {:error, :invalid_key} for inactive key" do
-      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API"})
+      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API", "project_name" => "test-project"})
 
       # Manually set key as inactive
       api_key
@@ -58,7 +58,7 @@ defmodule DimensionForge.ApiKeysTest do
 
   describe "delete_api_key/1" do
     test "deletes the api_key" do
-      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API"})
+      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API", "project_name" => "test-project"})
 
       assert {:ok, %ApiKey{}} = ApiKeys.delete_api_key(api_key)
       assert_raise Ecto.NoResultsError, fn -> Repo.get!(ApiKey, api_key.id) end
@@ -67,7 +67,7 @@ defmodule DimensionForge.ApiKeysTest do
 
   describe "get_api_key_by_key/1" do
     test "returns api_key when key exists" do
-      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API"})
+      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API", "project_name" => "test-project"})
 
       returned_api_key = ApiKeys.get_api_key_by_key(api_key.key)
       assert returned_api_key.id == api_key.id
@@ -80,8 +80,12 @@ defmodule DimensionForge.ApiKeysTest do
 
   describe "list_api_keys/0" do
     test "returns all api_keys" do
-      {:ok, api_key1} = ApiKeys.create_api_key(%{"name" => "Test API 1"})
-      {:ok, api_key2} = ApiKeys.create_api_key(%{"name" => "Test API 2"})
+      # Clear existing API keys first
+      ApiKeys.list_api_keys()
+      |> Enum.each(&ApiKeys.delete_api_key/1)
+
+      {:ok, api_key1} = ApiKeys.create_api_key(%{"name" => "Test API 1", "project_name" => "test-project-1"})
+      {:ok, api_key2} = ApiKeys.create_api_key(%{"name" => "Test API 2", "project_name" => "test-project-2"})
 
       api_keys = ApiKeys.list_api_keys()
 

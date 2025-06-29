@@ -11,7 +11,7 @@ defmodule DimensionForgeWeb.ImageController do
 
     with {:ok, validated_params} <- validate_upload_params(params),
          {:ok, image_data} <-
-           process_upload(validated_params.image, validated_params.project_name),
+           process_upload(validated_params.image, validated_params.project_name, validated_params.api_key_id),
          {:ok, image} <-
            Images.create_image(image_data) |> IO.inspect(label: "7. Database storage") do
       response_data = %{
@@ -203,14 +203,14 @@ defmodule DimensionForgeWeb.ImageController do
         {:error, "Missing required parameter: project_name or key"}
 
       true ->
-        # Use project_name if provided, otherwise default from key or fallback
-        project_name =
-          params["project_name"] || extract_project_from_key(params["key"]) || "default"
+        # Get API key info to extract project_name and api_key_id
+        {project_name, api_key_id} = extract_project_and_key_id(params["key"], params["project_name"])
 
         validated = %{
           image: params["image"],
           project_name: project_name,
-          api_key: params["key"]
+          api_key: params["key"],
+          api_key_id: api_key_id
         }
 
         IO.inspect(validated, label: "2. Validated params")
@@ -218,16 +218,30 @@ defmodule DimensionForgeWeb.ImageController do
     end
   end
 
-  defp extract_project_from_key(_key) do
-    # For now, return default project. In the future, you could:
-    # 1. Look up the API key in the database to get associated project
-    # 2. Decode project info from the key structure
-    # 3. Use a mapping configuration
-    "default"
+  defp extract_project_from_key(key) do
+    case DimensionForge.ApiKeys.get_api_key_by_key(key) do
+      %DimensionForge.ApiKey{project_name: project_name} when not is_nil(project_name) ->
+        project_name
+      _ ->
+        "default"
+    end
   end
 
-  defp process_upload(image_params, project_name) do
-    IO.inspect({image_params, project_name}, label: "3. Upload Processing start")
+  defp extract_project_and_key_id(key, provided_project_name) do
+    case DimensionForge.ApiKeys.get_api_key_by_key(key) do
+      %DimensionForge.ApiKey{id: api_key_id, project_name: api_project_name} when not is_nil(api_project_name) ->
+        # Use provided project_name if given, otherwise use API key's project_name
+        project_name = provided_project_name || api_project_name
+        {project_name, api_key_id}
+      _ ->
+        # Default project with no API key ID
+        project_name = provided_project_name || "default"
+        {project_name, nil}
+    end
+  end
+
+  defp process_upload(image_params, project_name, api_key_id \\ nil) do
+    IO.inspect({image_params, project_name, api_key_id}, label: "3. Upload Processing start")
     image_id = UUID.uuid4()
     original_filename = image_params.filename
     content_type = image_params.content_type
@@ -258,7 +272,8 @@ defmodule DimensionForgeWeb.ImageController do
         width: dimensions.width,
         height: dimensions.height,
         formats: ImageProcessor.get_supported_formats(),
-        variants: variants
+        variants: variants,
+        api_key_id: api_key_id
       }
 
       IO.inspect(image_data, label: "6. Final image data")

@@ -5,7 +5,7 @@ defmodule DimensionForgeWeb.ApiKeyControllerTest do
 
   describe "POST /api/validate-key" do
     test "returns valid response for active API key", %{conn: conn} do
-      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API"})
+      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API", "project_name" => "test-project"})
 
       conn = post(conn, ~p"/api/validate-key", %{"key" => api_key.key})
 
@@ -26,7 +26,7 @@ defmodule DimensionForgeWeb.ApiKeyControllerTest do
     end
 
     test "returns invalid response for inactive API key", %{conn: conn} do
-      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API"})
+      {:ok, api_key} = ApiKeys.create_api_key(%{"name" => "Test API", "project_name" => "test-project"})
 
       # Manually set key as inactive
       api_key
