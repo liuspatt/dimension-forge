@@ -1,6 +1,6 @@
-# DimensionForge 🖼️
-
-**High-performance image processing and optimization API for cloud applications**
+---
+layout: home
+---
 
 DimensionForge is a powerful, scalable image processing service built with Phoenix and Elixir. It provides on-demand image resizing, format conversion, and optimization with intelligent caching and cloud storage integration.
 
