@@ -60,3 +60,12 @@ Thumbs.db
 # GCP Credentials
 credentials.json
 *.json
+
+# Ruby/Jekyll
+.ruby-version
+.bundle/
+vendor/
+docs/.ruby-version
+docs/Gemfile
+docs/Gemfile.lock
+docs/_site/

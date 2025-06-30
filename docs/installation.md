@@ -1,14 +1,10 @@
 # Installation Guide
 
-This guide covers the complete installation process for DimensionForge across different cloud platforms and deployment methods.
-
 ## Prerequisites
 
-- **Elixir**: 1.14 or higher
-- **Erlang/OTP**: 25 or higher
-- **PostgreSQL**: 13 or higher
-- **ImageMagick**: 7.0 or higher (for image processing)
-- **Docker**: 20.10 or higher (for containerized deployments)
+- **Elixir**: 1.14+, **Erlang/OTP**: 25+
+- **PostgreSQL**: 13+, **ImageMagick**: 7.0+
+- **Docker**: 20.10+ (for containers)
 
 ## Environment Variables
 
@@ -62,78 +58,32 @@ MAX_IMAGE_SIZE_MB=10
 DNS_CLUSTER_QUERY=dimension-forge.default.svc.cluster.local
 ```
 
-## Quick Start Methods
+## Quick Start
 
-### 1. One-Click Deploy
-
-Deploy instantly to major cloud platforms:
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/your-username/dimension-forge)
-
-[![Deploy to Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run?git_repo=https://github.com/your-username/dimension-forge)
-
-### 2. Docker Compose (Recommended for Development)
+### Docker (Recommended)
 
 ```bash
-# Clone the repository
 git clone https://github.com/your-username/dimension-forge.git
 cd dimension-forge
-
-# Copy environment template
 cp .env.example .env
-
 # Edit .env with your configuration
-nano .env
-
-# Start services
 docker-compose up -d
-
-# Run migrations
 docker-compose exec app mix ecto.migrate
-
-# Your API is now running at http://localhost:4000
 ```
 
-### 3. Local Development Setup
+### Local Development
 
 ```bash
-# Install Elixir dependencies
 mix deps.get
-
-# Setup database
 mix ecto.setup
-
-# Start Phoenix server
 mix phx.server
-
-# Visit http://localhost:4000
 ```
 
-## Cloud Platform Guides
+## Cloud Deployment
 
-### Google Cloud Platform
-
-- **[Cloud Run](gcp-deployment.md#cloud-run)** - Serverless containers (recommended)
-- **[Google Kubernetes Engine](gcp-deployment.md#gke)** - Managed Kubernetes
-- **[Compute Engine](gcp-deployment.md#compute-engine)** - Virtual machines
-
-### Amazon Web Services
-
-- **[ECS Fargate](aws-deployment.md#ecs-fargate)** - Serverless containers
-- **[Elastic Beanstalk](aws-deployment.md#elastic-beanstalk)** - Platform as a Service
-- **[EKS](aws-deployment.md#eks)** - Managed Kubernetes
-
-### Microsoft Azure
-
-- **[Container Instances](azure-deployment.md#container-instances)** - Serverless containers
-- **[Container Apps](azure-deployment.md#container-apps)** - Managed containers
-- **[AKS](azure-deployment.md#aks)** - Managed Kubernetes
-
-### Other Platforms
-
-- **[Heroku](heroku-deployment.md)** - Platform as a Service
-- **[DigitalOcean App Platform](digitalocean-deployment.md)** - Managed containers
-- **[Railway](railway-deployment.md)** - Modern deployment platform
+- **[Google Cloud](gcp-deployment.md)** - Cloud Run, GKE, Compute Engine
+- **[AWS](aws-deployment.md)** - ECS Fargate, Elastic Beanstalk, EKS  
+- **[Azure](azure-deployment.md)** - Container Instances, Container Apps, AKS
 
 ## Database Setup
 

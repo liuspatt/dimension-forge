@@ -1,162 +1,91 @@
 ---
-layout: home
+layout: default
 ---
 
-DimensionForge is a powerful, scalable image processing service built with Phoenix and Elixir. It provides on-demand image resizing, format conversion, and optimization with intelligent caching and cloud storage integration.
+<div class="hero-banner-fullwidth">
+  <div class="hero-content">
+    <h1 class="hero-title">Dimension Forge</h1>    
+    <p class="hero-subtitle">High-performance image processing and optimization API for cloud applications</p>
+    <p class="hero-description">Provides on-demand image resizing, format conversion, and optimization with intelligent caching and cloud storage integration.</p>    
+    <div class="hero-actions">
+      <a href="{{ "/installation" | relative_url }}" class="btn btn-primary">
+        🚀 Get Started
+      </a>
+      <a href="{{ "/api-reference" | relative_url }}" class="btn btn-secondary">
+        📚 View API Docs
+      </a>
+    </div>
+  </div>
+</div>
 
-## ✨ Features
+<div class="content-container">
+<section class="features-section">
+  <div class="container">
+    <h2>Why Choose Dimension Forge?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>On-demand Processing</h3>
+        <p>Resize, crop, and convert images in real-time with instant delivery</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">☁️</div>
+        <h3>Multi-Cloud Support</h3>
+        <p>Works with Google Cloud Storage, AWS S3, and Azure Blob Storage</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Secure by Design</h3>
+        <p>API key authentication with project-based access control</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <h3>High Performance</h3>
+        <p>Built with Elixir/Phoenix for maximum concurrency and speed</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖼️</div>
+        <h3>Multiple Formats</h3>
+        <p>Support for JPEG, PNG, WebP, GIF, BMP, TIFF, and SVG</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3>Production Ready</h3>
+        <p>Docker support, health checks, metrics, and monitoring</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-- **<iconify-icon icon="material-symbols:rocket-launch"></iconify-icon> On-demand Image Processing**: Resize, crop, and convert images in real-time
-- **<iconify-icon icon="material-symbols:cloud"></iconify-icon> Multi-Cloud Support**: Google Cloud Storage, AWS S3, Azure Blob Storage
-- **<iconify-icon icon="material-symbols:security"></iconify-icon> API Key Authentication**: Secure project-based access control
-- **<iconify-icon icon="material-symbols:cached"></iconify-icon> Smart Caching**: Intelligent variant caching to minimize processing overhead
-- **<iconify-icon icon="material-symbols:bolt"></iconify-icon> High Performance**: Built with Elixir/Phoenix for maximum concurrency
-- **<iconify-icon icon="material-symbols:image"></iconify-icon> Multiple Formats**: Support for JPEG, PNG, WebP, GIF, BMP, TIFF, SVG
-- **<iconify-icon icon="material-symbols:tune"></iconify-icon> Flexible Resizing**: Crop, fit, fill, and stretch modes
-- **<iconify-icon icon="material-symbols:verified"></iconify-icon> Production Ready**: Docker support, health checks, metrics
-
-## 🚀 Quick Start
-
-### 1. Upload an Image
-
-```bash
-curl -X POST "https://your-domain.com/api/upload" \
+<section class="quick-start-section" id="quick-start">
+  <div class="container">
+    <h2>🚀 Quick Start</h2>
+    <div class="quick-start-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Upload an Image</h3>
+        <div class="code-block">
+<pre><code>curl -X POST "https://your-domain.com/api/upload" \
   -H "Content-Type: multipart/form-data" \
   -F "image=@your-image.jpg" \
   -F "key=your-api-key" \
-  -F "project_name=my-project"
-```
+  -F "project_name=my-project"</code></pre>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Get Resized Images</h3>
+        <div class="code-block">
+<pre><code>&lt;!-- Original image --&gt;
+&lt;img src="https://your-domain.com/image/my-project/image-id/800/600/image.webp" /&gt;
 
-### 2. Get Resized Images
+&lt;!-- Different sizes --&gt;
+&lt;img src="https://your-domain.com/image/my-project/image-id/400/300/image.webp" /&gt;
+&lt;img src="https://your-domain.com/image/my-project/image-id/200/150/image.jpg" /&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-```html
-<!-- Original image -->
-<img src="https://your-domain.com/image/my-project/image-id/800/600/image.webp" />
-
-<!-- Different sizes -->
-<img src="https://your-domain.com/image/my-project/image-id/400/300/image.webp" />
-<img src="https://your-domain.com/image/my-project/image-id/200/150/image.jpg" />
-```
-
-## 📚 Documentation
-
-### Installation & Deployment
-- [<iconify-icon icon="material-symbols:construction"></iconify-icon> Installation Guide]({{ "/installation" | relative_url }}) - Complete setup instructions
-- [<iconify-icon icon="logos:google-cloud"></iconify-icon> Google Cloud Platform]({{ "/gcp-deployment" | relative_url }}) - Deploy on GCP Cloud Run & GKE
-- [<iconify-icon icon="logos:aws"></iconify-icon> AWS Deployment]({{ "/aws-deployment" | relative_url }}) - Deploy on ECS, Fargate & Elastic Beanstalk  
-- [<iconify-icon icon="logos:microsoft-azure"></iconify-icon> Azure Deployment]({{ "/azure-deployment" | relative_url }}) - Deploy on Container Instances & Container Apps
-- [<iconify-icon icon="logos:docker-icon"></iconify-icon> Docker Deployment]({{ "/docker-deployment" | relative_url }}) - Self-hosted Docker setup
-
-### API Reference
-- [<iconify-icon icon="material-symbols:api"></iconify-icon> API Documentation]({{ "/api-reference" | relative_url }}) - Complete API reference
-
-### Advanced Topics
-- [<iconify-icon icon="material-symbols:settings"></iconify-icon> Configuration]({{ "/installation#environment-variables" | relative_url }}) - Environment variables and settings
-- [<iconify-icon icon="material-symbols:shield"></iconify-icon> Security]({{ "/installation#security-configuration" | relative_url }}) - Security best practices
-- [<iconify-icon icon="material-symbols:build"></iconify-icon> Troubleshooting]({{ "/installation#troubleshooting" | relative_url }}) - Common issues and solutions
-
-## 🌐 Live Demo
-
-Try DimensionForge with our interactive demo:
-
-**Base URL**: `https://dimension-forge-demo.com`
-
-**Sample API Key**: `demo-key-12345` (read-only)
-
-### Example Requests
-
-```javascript
-// Upload an image
-const formData = new FormData();
-formData.append('image', file);
-formData.append('key', 'your-api-key');
-formData.append('project_name', 'my-app');
-
-const response = await fetch('https://your-domain.com/api/upload', {
-  method: 'POST',
-  body: formData
-});
-
-const result = await response.json();
-// Returns: { success: true, data: { image_id: "...", project_name: "...", ... } }
-```
-
-```javascript
-// Get resized image URL
-const imageUrl = `https://your-domain.com/image/my-app/${imageId}/800/600/photo.webp`;
-```
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Client App    │───▶│  DimensionForge │───▶│  Cloud Storage  │
-│                 │    │      API        │    │   (GCS/S3)      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │   PostgreSQL    │
-                       │    Database     │
-                       └─────────────────┘
-```
-
-## 🛠️ Technology Stack
-
-- **Backend**: Elixir + Phoenix Framework
-- **Database**: PostgreSQL with Ecto ORM
-- **Image Processing**: ImageMagick via Mogrify
-- **Cloud Storage**: Google Cloud Storage, AWS S3, Azure Blob
-- **Authentication**: JWT-based API keys
-- **Deployment**: Docker, Kubernetes, Cloud Run, ECS
-
-## 📦 Installation
-
-Choose your deployment method:
-
-<div class="installation-grid">
-  <a href="{{ "/gcp-deployment" | relative_url }}" class="install-card">
-    <h3><iconify-icon icon="logos:google-cloud"></iconify-icon> Google Cloud</h3>
-    <p>Deploy on Cloud Run or GKE with one command</p>
-  </a>
-  
-  <a href="{{ "/aws-deployment" | relative_url }}" class="install-card">
-    <h3><iconify-icon icon="logos:aws"></iconify-icon> AWS</h3>
-    <p>ECS Fargate and Elastic Beanstalk ready</p>
-  </a>
-  
-  <a href="{{ "/azure-deployment" | relative_url }}" class="install-card">
-    <h3><iconify-icon icon="logos:microsoft-azure"></iconify-icon> Azure</h3>
-    <p>Container Instances and Container Apps</p>
-  </a>
-  
-  <a href="{{ "/docker-deployment" | relative_url }}" class="install-card">
-    <h3><iconify-icon icon="logos:docker-icon"></iconify-icon> Docker</h3>
-    <p>Self-hosted with Docker Compose</p>
-  </a>
-</div>
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](contributing.md) for details.
-
-## 📄 License
-
-DimensionForge is released under the MIT License. See [LICENSE](https://github.com/liuspatt/dimension-forge/blob/main/LICENSE) for details.
-
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/liuspatt/dimension-forge)
-- [Issues](https://github.com/liuspatt/dimension-forge/issues)
-- [Discussions](https://github.com/liuspatt/dimension-forge/discussions)
-
----
-
-<div align="center">
-  <p>Built with ❤️ using Elixir and Phoenix</p>
-  <p>
-    <a href="https://github.com/liuspatt/dimension-forge">⭐ Star on GitHub</a> |
-    <a href="https://github.com/liuspatt/dimension-forge/issues">🐛 Report Bug</a> |
-    <a href="https://github.com/liuspatt/dimension-forge/discussions">💬 Discussions</a>
-  </p>
 </div>
